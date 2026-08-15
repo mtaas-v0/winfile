@@ -35,7 +35,20 @@ jobs:
       continue-on-error: true
       run: msbuild winfile.sln /p:Configuration=Release /p:Platform=ARM64  /p:WindowsTargetPlatformVersion=10.0
 
+    # Creates a custom named zip archive using the matrix architecture and run number
+    - name: Zip Build Artifacts
+      run: |
+        Get-ChildItem -Recurse | Select-Object -ExpandProperty FullName
+        Compress-Archive -Path .\ -DestinationPath build\woa64-build-b${{ github.run_number }}.zip
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: woa64-artifact-b${{ github.run_number }}
+        path: build/woa64-build-b${{ github.run_number }}.zip
+        
     - name: Upload Build Artifacts
+      if: false
       uses: actions/upload-artifact@v4
       with:
         name: ms-winfiles-run-${{ github.run_number }}-wo64

@@ -22,14 +22,17 @@ jobs:
       run: cd src
 
     - name: Restore NuGet Packages
-      run: nuget restore src/winfile.sln
+      run: nuget restore winfile.sln
       # Note: Early winfile might not use NuGet, but included for modern compatibility layers
 
     - name: Build for Windows on ARM (ARM64)
-      run: msbuild src/winfile.sln /p:Configuration=Release /p:Platform=ARM64
+      run: msbuild winfile.sln /p:Configuration=Release /p:Platform=ARM64
 
-    - name: Upload ARM64 Binaries
-      uses: actions/artifacts/upload@v4
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
       with:
-        name: winfile-woa-arm64
-        path: src/ARM64/Release/
+        name: ms-winfiles-run-${{ github.run_number }}-wo64
+        path: |
+          **/bin/Release/
+          **/bin/ARM64/Release/
+        retention-days: 5

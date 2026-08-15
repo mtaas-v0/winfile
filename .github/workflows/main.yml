@@ -1,0 +1,35 @@
+name: Build Winfile for Windows on ARM
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch: # Allows you to trigger the build manually
+
+jobs:
+  build-arm64:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Navigate to Workspace
+      run: cd src
+
+    - name: Restore NuGet Packages
+      run: nuget restore src/winfile.sln
+      # Note: Early winfile might not use NuGet, but included for modern compatibility layers
+
+    - name: Build for Windows on ARM (ARM64)
+      run: msbuild src/winfile.sln /p:Configuration=Release /p:Platform=ARM64
+
+    - name: Upload ARM64 Binaries
+      uses: actions/artifacts/upload@v4
+      with:
+        name: winfile-woa-arm64
+        path: src/ARM64/Release/
